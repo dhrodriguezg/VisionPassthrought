@@ -2,7 +2,6 @@ package com.dhrodriguezg.halloween.visionpassthrought;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,20 +17,20 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dhrodriguezg.halloween.visionpassthrought.entity.RemoteImage;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.TCPClient;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.TCPServer;
 import com.dhrodriguezg.halloween.visionpassthrought.widget.CustomCameraView;
-
-import org.jboss.netty.buffer.ChannelBuffer;
 
 public class CameraActivity extends Activity {
 
 	private static final String TAG = "CameraActivity";
 
+    private int cWidth = 640;
+    private int cHeight = 360;
     private CustomCameraView localView;
     private ImageView remoteView;
     private Spinner spinnerResolution;
@@ -40,7 +38,7 @@ public class CameraActivity extends Activity {
     private Switch cameraSwitch;
     private TCPClient tcpClient;
     private TCPServer tcpServer;
-    private ChannelBuffer remoteImageBuffer = null;
+    private RemoteImage remoteImageBuffer = null;
 
     public CameraActivity() {}
 
@@ -54,15 +52,17 @@ public class CameraActivity extends Activity {
         setContentView(R.layout.activity_camera);
 
         if(MainActivity.PREFERENCES.getProperty(getString(R.string.comm_mode_name)).equals(getString(R.string.comm_server_name))){
+            Log.i(TAG,"I'M THE SERVER");
             tcpServer = new TCPServer(this);
             tcpServer.initControllerService();
             tcpServer.initStreamService();
             tcpClient = null;
         } else {
-            tcpServer = null;
+            Log.i(TAG,"I'M A CLIENT");
             tcpClient = new TCPClient(this);
             tcpClient.initControllerService();
             tcpClient.initStreamService();
+            tcpServer = null;
         }
 
         cameraSwitch = (Switch) findViewById(R.id.cameraSwitch);
@@ -91,7 +91,7 @@ public class CameraActivity extends Activity {
             }
         });
         localView = (CustomCameraView) findViewById(R.id.imageLocal);
-        localView.setResolution(640, 360);
+        localView.setResolution(cWidth, cHeight);
 
         remoteView = (ImageView) findViewById(R.id.imageRemote);
         remoteView.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -109,11 +109,11 @@ public class CameraActivity extends Activity {
                         }
 
                         if(tcpServer != null){//
-                            tcpServer.updateDownImage(localView.getImage());
+                            tcpServer.updateDownImage(new RemoteImage(localView.getImage()));
                             remoteImageBuffer=tcpServer.getUpImageBuffer();
                         }
                         if(tcpClient != null){
-                            tcpClient.updateUpImage(localView.getImage());
+                            tcpClient.updateUpImage(new RemoteImage(localView.getImage()));
                             tcpClient.updateController(1);
                             remoteImageBuffer=tcpClient.getDownImageBuffer();
                         }
@@ -125,9 +125,10 @@ public class CameraActivity extends Activity {
                                 //byte[] data = localView.getImage().array();
                                 //remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, localView.getImage().arrayOffset(), localView.getImage().readableBytes()));
                                 if(remoteImageBuffer != null){
+                                    Log.i(TAG,"received image from client");
                                     byte[] data = remoteImageBuffer.array();
                                     remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
-
+                                    remoteImageBuffer = null;
                                 }
                             }
                         });

@@ -6,8 +6,6 @@ import android.util.Log;
 import com.dhrodriguezg.halloween.visionpassthrought.MainActivity;
 import com.dhrodriguezg.halloween.visionpassthrought.R;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -45,8 +43,8 @@ public class TCPServer {
     private boolean isTransferingController = false;
     private boolean controllerOnline = false;
 
-    private ChannelBuffer downImageBuffer = null;
-    private ChannelBuffer upImageBuffer = null;
+    private RemoteImage downImageBuffer = null;
+    private RemoteImage upImageBuffer = null;
     private int controllerBuffer;
 
     private long startingStreamDownTime = 0;
@@ -64,6 +62,7 @@ public class TCPServer {
         Thread threadStreamUp = new Thread() {
             public void run() {
                 try {
+                    Log.i(TAG,"creating server socket for stream down at "+STREAM_UP_PORT);
                     streamupServerSocket = new ServerSocket(STREAM_UP_PORT);
                     while(serverOnline){
                         streamUpSocket = streamupServerSocket.accept(); // This is blocking. It will wait.
@@ -85,6 +84,7 @@ public class TCPServer {
         Thread threadStreamDown = new Thread() {
             public void run() {
                 try {
+                    Log.i(TAG,"creating server socket for stream up at "+STREAM_DOWN_PORT);
                     streamdownServerSocket = new ServerSocket(STREAM_DOWN_PORT);
                     while(serverOnline){
                         streamDownSocket = streamdownServerSocket.accept(); // This is blocking. It will wait.
@@ -110,9 +110,12 @@ public class TCPServer {
             public void run() {
 
                 try {
+                    Log.i(TAG,"creating server socket for controller at "+CONTROLLER_PORT);
                     controllerServerSocket = new ServerSocket(CONTROLLER_PORT);
                     while(serverOnline){
+                        Log.i(TAG,"waiting for client");
                         controllerSocket = controllerServerSocket.accept(); // This is blocking. It will wait.
+                        Log.i(TAG,"client connected");
                         objectControllerOutput = new ObjectOutputStream(controllerSocket.getOutputStream());
                         objectControllerInput = new ObjectInputStream(controllerSocket.getInputStream());
                         controllerSocket.setKeepAlive(true);
@@ -129,11 +132,11 @@ public class TCPServer {
         thread.start();
     }
 
-    public ChannelBuffer getUpImageBuffer(){
+    public RemoteImage getUpImageBuffer(){
         return upImageBuffer;
     }
 
-    public boolean updateDownImage(ChannelBuffer imageBuffer){
+    public boolean updateDownImage(RemoteImage imageBuffer){
         if(isTransferingStreamDown)
             return false; //Cannot send right now, busy.
         downImageBuffer = imageBuffer;
@@ -169,11 +172,13 @@ public class TCPServer {
 
                 downImageBuffer = null;
             } catch (IOException e) {
+                e.printStackTrace();
                 streamDownOnline = false;
-                Log.i(TAG,e.getMessage());
+                Log.i(TAG,e.getMessage() + "178");
             } catch (InterruptedException e) {
+                e.printStackTrace();
                 streamDownOnline = false;
-                Log.i(TAG, e.getMessage());
+                Log.i(TAG, e.getMessage()+ "181");
             }
         }
 
@@ -195,18 +200,18 @@ public class TCPServer {
                 }
 
                 isTransferingStreamUp = true;
-                upImageBuffer=(ChannelBuffer) objectStreamUpInput.readObject();
+                upImageBuffer=(RemoteImage) objectStreamUpInput.readObject();
                 isTransferingStreamUp = false;
 
             } catch (IOException e) {
                 streamUpOnline = false;
-                Log.i(TAG,e.getMessage());
+                Log.i(TAG,e.getMessage()+ "208");
             } catch (ClassNotFoundException e) {
                 streamUpOnline = false;
-                Log.i(TAG, e.getMessage());
+                Log.i(TAG, e.getMessage()+ "211");
             } catch (InterruptedException e) {
                 streamUpOnline = false;
-                Log.i(TAG, e.getMessage());
+                Log.i(TAG, e.getMessage()+ "214");
             }
         }
 
@@ -254,10 +259,10 @@ public class TCPServer {
 
             } catch (IOException e) {
                 controllerOnline = false;
-                Log.i(TAG,e.getMessage());
+                Log.i(TAG,e.getMessage()+ "262");
             } catch (InterruptedException e) {
                 controllerOnline = false;
-                Log.i(TAG, e.getMessage());
+                Log.i(TAG, e.getMessage()+ "265");
             }
         }
 

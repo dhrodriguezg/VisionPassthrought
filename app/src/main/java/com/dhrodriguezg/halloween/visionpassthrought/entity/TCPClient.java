@@ -11,8 +11,6 @@ import android.util.Log;
 import com.dhrodriguezg.halloween.visionpassthrought.MainActivity;
 import com.dhrodriguezg.halloween.visionpassthrought.R;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-
 public class TCPClient {
 
     private static final String TAG = "TCPClient";
@@ -40,8 +38,8 @@ public class TCPClient {
     private boolean isTransferingController = false;
     private boolean controllerOnline = false;
 
-    private ChannelBuffer downImageBuffer = null;
-    private ChannelBuffer upImageBuffer = null;
+    private RemoteImage downImageBuffer = null;
+    private RemoteImage upImageBuffer = null;
     private int controllerBuffer;
 
     private long startingStreamDownTime = 0;
@@ -128,14 +126,14 @@ public class TCPClient {
         thread.start();
     }
 
-    public boolean updateUpImage(ChannelBuffer imageBuffer){
+    public boolean updateUpImage(RemoteImage imageBuffer){
         if(isTransferingStreamUp)
             return false; //Cannot send right now, busy.
         upImageBuffer = imageBuffer;
         return true;
     }
 
-    public ChannelBuffer getDownImageBuffer(){
+    public RemoteImage getDownImageBuffer(){
         return downImageBuffer;
     }
 
@@ -203,7 +201,7 @@ public class TCPClient {
                 }
 
                 isTransferingStreamDown = true;
-                downImageBuffer=(ChannelBuffer) objectStreaDownInput.readObject();
+                downImageBuffer=(RemoteImage) objectStreaDownInput.readObject();
                 isTransferingStreamDown = false;
 
             } catch (IOException e) {
