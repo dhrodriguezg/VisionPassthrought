@@ -1,0 +1,251 @@
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:grid="http://schemas.android.com/apk/res-auto"
+    tools:ignore="ContentDescription"
+    tools:context=".MainActivity"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/MainActivity"
+    android:orientation="vertical">
+
+
+    <View
+        grid:layout_heightPercent="1%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/Separator01"
+        android:background="@android:color/darker_gray" />
+
+    <android.support.v7.widget.GridLayout
+        grid:layout_heightPercent="15%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/InfoSection"
+        grid:rowCount="3"
+        grid:columnCount="2"
+        android:layout_marginRight="3dp"
+        android:layout_marginLeft="3dp"
+        android:layout_below="@+id/Separator01" >
+
+        <TextView
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/phone_info_title"
+            android:id="@+id/phone_info_title"
+            grid:layout_gravity="left|center_vertical"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="2" />
+
+        <TextView
+            android:text="@string/phone_name_title"
+            android:id="@+id/phone_name_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|right" />
+
+        <TextView
+            android:text="@string/phone_name_value"
+            android:id="@+id/phone_name_value"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|left" />
+
+    </android.support.v7.widget.GridLayout>
+
+
+    <View
+        grid:layout_heightPercent="1%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/Separator02"
+        android:layout_below="@+id/InfoSection"
+        android:background="@android:color/darker_gray" />
+
+
+    <android.support.v7.widget.GridLayout
+        grid:layout_heightPercent="49%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/Separator02"
+        android:id="@+id/ServerSection"
+        grid:rowCount="6"
+        grid:columnCount="3"
+        grid:orientation="horizontal"
+        android:layout_marginRight="3dp"
+        android:layout_marginLeft="3dp">
+
+        <TextView
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/server_settings_title"
+            android:id="@+id/server_settings_title"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            grid:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="@string/phone_ip_title"
+            android:id="@+id/phone_ip_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="3"
+            android:gravity="center_vertical|right" />
+
+        <EditText
+            android:text="@string/phone_ip_value"
+            android:id="@+id/phone_ip_value"
+            android:inputType="phone"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="3"
+            android:text="@string/phone_ip_btn"
+            android:id="@+id/phone_ip_btn"
+            android:gravity="center_vertical|center" />
+
+        <TextView
+            android:text="@string/server_streamport1_title"
+            android:id="@+id/server_streamport1_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|right"
+            />
+
+        <EditText
+            android:text="@string/server_streamport1_value"
+            android:id="@+id/server_streamport1_value"
+            android:inputType="phone"
+            grid:layout_columnSpan="2"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            />
+
+        <TextView
+            android:text="@string/server_streamport2_title"
+            android:id="@+id/server_streamport2_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|right"
+            />
+
+        <EditText
+            android:text="@string/server_streamport2_value"
+            android:id="@+id/server_streamport2_value"
+            android:inputType="phone"
+            grid:layout_columnSpan="2"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            />
+
+        <TextView
+            android:text="@string/server_controlport_title"
+            android:id="@+id/server_controlport_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|right"
+            android:textSize="12sp" />
+
+        <EditText
+            android:text="@string/server_controlport_value"
+            android:id="@+id/server_controlport_value"
+            android:inputType="phone"
+            grid:layout_columnSpan="2"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1" />
+
+        <Button
+            android:text="@string/server_start_title"
+            android:id="@+id/server_start_btn"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3" />
+
+
+
+
+    </android.support.v7.widget.GridLayout>
+
+    <View
+        grid:layout_heightPercent="1%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/Separator03"
+        android:layout_below="@+id/ServerSection"
+        android:background="@android:color/darker_gray" />
+
+    <android.support.v7.widget.GridLayout
+        grid:layout_heightPercent="29%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/Separator03"
+        android:id="@+id/ClientSection"
+        grid:rowCount="8"
+        grid:columnCount="3"
+        grid:orientation="horizontal"
+        android:layout_marginRight="3dp"
+        android:layout_marginLeft="3dp">
+
+
+        <TextView
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/client_settings_title"
+            android:id="@+id/client_settings_title"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            grid:layout_gravity="center" />
+
+        <TextView
+            android:text="@string/client_serverip_title"
+            android:id="@+id/client_serverip_title"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            android:gravity="center_vertical|right"
+            android:textSize="12sp" />
+
+        <EditText
+            android:text="@string/client_serverip_value"
+            android:id="@+id/client_serverip_value"
+            android:inputType="phone"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1" />
+
+        <Button
+            android:text="@string/client_test_server"
+            android:id="@+id/client_test_server_btn"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            />
+
+        <Button
+            android:text="@string/client_start_title"
+            android:id="@+id/client_start_btn"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            />
+
+
+    </android.support.v7.widget.GridLayout>
+
+    <View
+        grid:layout_heightPercent="1%"
+        grid:layout_widthPercent="100%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/Separator04"
+        android:layout_below="@+id/ClientSection"
+        android:background="@android:color/darker_gray" />
+
+</android.support.percent.PercentRelativeLayout>

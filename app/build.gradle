@@ -1,0 +1,31 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.dhrodriguezg.halloween.visionpassthrought"
+        minSdkVersion 15
+        targetSdkVersion 15
+        versionCode 1
+        versionName "First Release"
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude '...'
+    }
+}
+
+dependencies {
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    compile 'org.jboss.netty:netty:3.2.10.Final'
+    compile 'com.google.guava:guava:13.0.1'
+    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:gridlayout-v7:22.2.1'
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.android.support:percent:23.1.1'
+}
