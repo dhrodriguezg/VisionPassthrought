@@ -6,7 +6,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class Server implements Serializable {
 
-    private static final long serialVersionUID = -5399605122490343339L;
     private static final String TAG = "Server";
 
     private String ip;

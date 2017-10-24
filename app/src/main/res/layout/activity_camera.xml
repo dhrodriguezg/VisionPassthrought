@@ -5,19 +5,18 @@
     tools:context=".CameraActivity"
     android:orientation="horizontal">
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#000000"
+        android:id="@+id/imageRemote" />
 
     <com.dhrodriguezg.halloween.visionpassthrought.widget.CustomCameraView
         android:id="@+id/imageLocal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="visible" />
-
-    <ImageView
-        android:layout_width="160dp"
-        android:layout_height="90dp"
-        android:id="@+id/imageRemote"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:layout_width="96dp"
+        android:layout_height="54dp" />
 
     <Spinner
         android:layout_width="150dp"
@@ -28,29 +27,19 @@
         android:background="#AAAAAA"
         android:alpha="0.8"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="70dp" />
+        android:layout_centerHorizontal="true" />
 
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Front Camera"
+        android:text="Switch Camera"
         android:id="@+id/cameraSwitch"
         android:checked="true"
+        android:background="#AAAAAA"
+        android:alpha="0.8"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="70dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back Camera"
-        android:textColor="#ff000000"
-        android:id="@+id/backCamera"
-        android:layout_toRightOf="@+id/cameraSwitch"
-        android:layout_alignTop="@+id/cameraSwitch"
-        android:layout_alignBottom="@+id/cameraSwitch"
-        android:gravity="center_vertical" />
-
+        android:layout_alignParentLeft="true" />
 
 </RelativeLayout>

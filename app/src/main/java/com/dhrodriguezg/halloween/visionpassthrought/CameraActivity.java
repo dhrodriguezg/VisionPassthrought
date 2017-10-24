@@ -34,7 +34,8 @@ public class CameraActivity extends Activity {
     private CustomCameraView localView;
     private ImageView remoteView;
     private Spinner spinnerResolution;
-    private boolean running = true;
+    private boolean isAppRunning = true;
+    private boolean isUpdatingRemoteImg = false;
     private Switch cameraSwitch;
     private TCPClient tcpClient;
     private TCPServer tcpServer;
@@ -45,7 +46,6 @@ public class CameraActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-    	Intent intent = getIntent();
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -54,14 +54,12 @@ public class CameraActivity extends Activity {
         if(MainActivity.PREFERENCES.getProperty(getString(R.string.comm_mode_name)).equals(getString(R.string.comm_server_name))){
             Log.i(TAG,"I'M THE SERVER");
             tcpServer = new TCPServer(this);
-            tcpServer.initControllerService();
-            tcpServer.initStreamService();
+            tcpServer.initServices();
             tcpClient = null;
         } else {
             Log.i(TAG,"I'M A CLIENT");
             tcpClient = new TCPClient(this);
-            tcpClient.initControllerService();
-            tcpClient.initStreamService();
+            tcpClient.initServices();
             tcpServer = null;
         }
 
@@ -102,10 +100,10 @@ public class CameraActivity extends Activity {
                 try {
 
 
-                    while(running){
+                    while(isAppRunning){
 
-                        while(!localView.hasImageChanged()){
-                            Thread.sleep(1);
+                        while( !localView.hasImageChanged() || isUpdatingRemoteImg){
+                            Thread.sleep(2);
                         }
 
                         if(tcpServer != null){//
@@ -122,19 +120,17 @@ public class CameraActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //byte[] data = localView.getImage().array();
-                                //remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, localView.getImage().arrayOffset(), localView.getImage().readableBytes()));
+                                isUpdatingRemoteImg=true;
                                 if(remoteImageBuffer != null){
-                                    Log.i(TAG,"received image from client");
                                     byte[] data = remoteImageBuffer.array();
                                     remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
                                     remoteImageBuffer = null;
                                 }
+                                isUpdatingRemoteImg=false;
                             }
                         });
 
                         localView.setImageChanged(false);
-                        Thread.sleep(10);
                     }
                 } catch (InterruptedException e) {
                     e.getStackTrace();
@@ -148,7 +144,7 @@ public class CameraActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        running=true;
+        isAppRunning =true;
     }
     
     @Override
@@ -158,7 +154,7 @@ public class CameraActivity extends Activity {
     
     @Override
     public void onDestroy() {
-        running=false;
+        isAppRunning =false;
         if(tcpServer != null)
             tcpServer.shutdown();
         if(tcpClient != null)

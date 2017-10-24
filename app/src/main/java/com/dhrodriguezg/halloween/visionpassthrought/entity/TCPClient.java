@@ -3,6 +3,8 @@ package com.dhrodriguezg.halloween.visionpassthrought.entity;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.Socket;
 
 import android.app.Activity;
@@ -56,14 +58,15 @@ public class TCPClient {
         serverOnline = true;
     }
 
-    public void initStreamService(){
+    public void initServices(){
         Thread threadStreamUp = new Thread() {
             public void run() {
                 try {
 
                     while(serverOnline){
-                        Log.i(TAG, "UP is up");
+                        Log.i(TAG,"Connecting to streamup");
                         streamUpSocket = new Socket(serverInfo.getIp(), STREAM_UP_PORT);
+                        Log.i(TAG,"Connected to streamup");
                         objectStreamUpOutput = new ObjectOutputStream(streamUpSocket.getOutputStream());
                         objectStreaUpInput = new ObjectInputStream(streamUpSocket.getInputStream());
                         streamUpSocket.setKeepAlive(true);
@@ -71,9 +74,8 @@ public class TCPClient {
                         transferUpImage();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on stream up");
                     streamUpOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
@@ -83,8 +85,9 @@ public class TCPClient {
             public void run() {
                 try {
                     while(serverOnline){
-                        Log.i(TAG, "Down is up");
+                        Log.i(TAG,"Connecting to streamdown");
                         streamDownSocket = new Socket(serverInfo.getIp(), STREAM_DOWN_PORT);
+                        Log.i(TAG,"Connected to streamdown");
                         objectStreamDownOutput = new ObjectOutputStream(streamDownSocket.getOutputStream());
                         objectStreaDownInput = new ObjectInputStream(streamDownSocket.getInputStream());
                         streamDownSocket.setKeepAlive(true);
@@ -92,24 +95,21 @@ public class TCPClient {
                         transferDownImage();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on stream down");
                     streamDownOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
         threadStreamDown.start();
 
-    }
-
-    public void initControllerService(){
-        Thread thread = new Thread() {
+        Thread threadController = new Thread() {
             public void run() {
 
                 try {
                     while(serverOnline){
-                        Log.i(TAG, "Contr is up");
+                        Log.i(TAG,"Connecting to controller");
                         controllerSocket = new Socket(serverInfo.getIp(), CONTROLLER_PORT);
+                        Log.i(TAG,"Connected to controller");
                         objectControllerOutput = new ObjectOutputStream(controllerSocket.getOutputStream());
                         objectControllerInput = new ObjectInputStream(controllerSocket.getInputStream());
                         controllerSocket.setKeepAlive(true);
@@ -117,18 +117,18 @@ public class TCPClient {
                         transferController();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on controller");
                     controllerOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
-        thread.start();
+        threadController.start();
+
     }
 
     public boolean updateUpImage(RemoteImage imageBuffer){
         if(isTransferingStreamUp)
-            return false; //Cannot send right now, busy.
+            return false; //Cannot update it right now, currently sending.
         upImageBuffer = imageBuffer;
         return true;
     }
@@ -144,45 +144,32 @@ public class TCPClient {
 
     private void transferUpImage( ){
 
-        Log.i(TAG, "Up.0");
-
         while (serverOnline){ //while the app is running, keep trying.
 
             try {
 
-                Log.i(TAG, "Up.1");
-
+                if(!streamUpOnline)
+                    return; // there was an exception in previous connections, cancel.
 
                 //waiting for image to send
                 while(upImageBuffer == null){
                     Thread.sleep(10);
                 }
 
-                Log.i(TAG, "Up.2");
-
-                if(!streamUpOnline)
-                    return;
-
-                Log.i(TAG, "Up.3");
-
                 isTransferingStreamUp = true;
-                startingStreamUpTime = System.currentTimeMillis();
                 objectStreamUpOutput.writeObject(upImageBuffer);
                 objectStreamUpOutput.flush();
+                upImageBuffer = null;
                 isTransferingStreamUp = false;
 
-                Log.i(TAG, "Up.4");
-                upImageBuffer = null;
             } catch (IOException e) {
                 streamUpOnline = false;
-                Log.i(TAG,e.getMessage());
+                printException(e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 streamUpOnline = false;
-                Log.i(TAG, e.getMessage());
+                printException(e);
             }
         }
-
     }
 
     private void transferDownImage( ){
@@ -192,13 +179,7 @@ public class TCPClient {
             try {
 
                 if(!streamDownOnline)
-                    return;
-
-                startingStreamDownTime = System.currentTimeMillis();
-
-                while(objectStreaDownInput.available()==0){//waiting for next image
-                    Thread.sleep(5);
-                }
+                    return; // there was an exception in previous connections, cancel.
 
                 isTransferingStreamDown = true;
                 downImageBuffer=(RemoteImage) objectStreaDownInput.readObject();
@@ -206,16 +187,12 @@ public class TCPClient {
 
             } catch (IOException e) {
                 streamDownOnline = false;
-                Log.i(TAG,e.getMessage());
+                printException(e);
             } catch (ClassNotFoundException e) {
                 streamDownOnline = false;
-                Log.i(TAG, e.getMessage());
-            } catch (InterruptedException e) {
-                streamDownOnline = false;
-                Log.i(TAG, e.getMessage());
+                printException(e);
             }
         }
-
     }
 
     public void transferController(){
@@ -223,21 +200,14 @@ public class TCPClient {
         while (serverOnline){
             try {
 
-
                 if(!controllerOnline)
-                    return;
+                    return; // there was an exception in previous connections, cancel.
 
                 isTransferingController = true;
-
-                Log.i(TAG, "updating controller");
 
                 int controller_code=controllerBuffer;
                 objectControllerOutput.writeInt(controller_code);
                 objectControllerOutput.flush();
-
-                while(objectControllerInput.available()==0){ //waiting for data
-                    Thread.sleep(1);
-                }
 
                 switch (controller_code) {
                     case -1:
@@ -267,28 +237,14 @@ public class TCPClient {
 
             } catch (IOException e) {
                 controllerOnline = false;
-                Log.i(TAG,e.getMessage());
+                printException(e);
             } catch (InterruptedException e) {
                 controllerOnline = false;
-                Log.i(TAG, e.getMessage());
+                printException(e);
             } catch (ClassNotFoundException e) {
                 controllerOnline = false;
-                Log.i(TAG,e.getLocalizedMessage());
-                Log.i(TAG, e.getException().getMessage());
+                printException(e);
             }
-        }
-    }
-
-    private void resetStreaming(){
-        try {
-            if(!controllerSocket.isClosed())
-                controllerSocket.close();
-            if(!streamDownSocket.isClosed())
-                streamDownSocket.close();
-            if(!streamUpSocket.isClosed())
-                streamUpSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -304,4 +260,11 @@ public class TCPClient {
             controllerSocket.close();
         } catch (IOException e) {}
     }
+
+    private void printException(Exception e){
+        StringWriter errors = new StringWriter();
+        e.printStackTrace(new PrintWriter(errors));
+        Log.e(TAG, errors.toString());
+    }
+
 }

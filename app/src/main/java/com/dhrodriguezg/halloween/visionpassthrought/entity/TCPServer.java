@@ -9,6 +9,8 @@ import com.dhrodriguezg.halloween.visionpassthrought.R;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -47,10 +49,6 @@ public class TCPServer {
     private RemoteImage upImageBuffer = null;
     private int controllerBuffer;
 
-    private long startingStreamDownTime = 0;
-    private long startingStreamUpTime = 0;
-    private long startingControllerTime = 0;
-
     private Activity activity;
 
     public TCPServer(Activity activity){
@@ -58,14 +56,15 @@ public class TCPServer {
         serverOnline = true;
     }
 
-    public void initStreamService(){
+    public void initServices(){
         Thread threadStreamUp = new Thread() {
             public void run() {
                 try {
-                    Log.i(TAG,"creating server socket for stream down at "+STREAM_UP_PORT);
                     streamupServerSocket = new ServerSocket(STREAM_UP_PORT);
                     while(serverOnline){
+                        Log.i(TAG,"Waiting for new connections to streamup");
                         streamUpSocket = streamupServerSocket.accept(); // This is blocking. It will wait.
+                        Log.i(TAG,"New client connected to streamup");
                         objectStreamUpOutput = new ObjectOutputStream(streamUpSocket.getOutputStream());
                         objectStreamUpInput = new ObjectInputStream(streamUpSocket.getInputStream());
                         streamUpSocket.setKeepAlive(true);
@@ -73,9 +72,8 @@ public class TCPServer {
                         transferUpImage();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on stream up");
                     streamUpOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
@@ -84,10 +82,11 @@ public class TCPServer {
         Thread threadStreamDown = new Thread() {
             public void run() {
                 try {
-                    Log.i(TAG,"creating server socket for stream up at "+STREAM_DOWN_PORT);
                     streamdownServerSocket = new ServerSocket(STREAM_DOWN_PORT);
                     while(serverOnline){
+                        Log.i(TAG,"Waiting for new connections to streamdown");
                         streamDownSocket = streamdownServerSocket.accept(); // This is blocking. It will wait.
+                        Log.i(TAG,"New client connected to streamdown");
                         objectStreamDownOutput = new ObjectOutputStream(streamDownSocket.getOutputStream());
                         objectStreamDownInput = new ObjectInputStream(streamDownSocket.getInputStream());
                         streamDownSocket.setKeepAlive(true);
@@ -95,27 +94,21 @@ public class TCPServer {
                         transferDownImage();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on stream down");
                     streamDownOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
         threadStreamDown.start();
 
-    }
-
-    public void initControllerService(){
-        Thread thread = new Thread() {
+        Thread threadController = new Thread() {
             public void run() {
-
                 try {
-                    Log.i(TAG,"creating server socket for controller at "+CONTROLLER_PORT);
                     controllerServerSocket = new ServerSocket(CONTROLLER_PORT);
                     while(serverOnline){
-                        Log.i(TAG,"waiting for client");
+                        Log.i(TAG,"Waiting for new connections to controller");
                         controllerSocket = controllerServerSocket.accept(); // This is blocking. It will wait.
-                        Log.i(TAG,"client connected");
+                        Log.i(TAG,"New client connected to controller");
                         objectControllerOutput = new ObjectOutputStream(controllerSocket.getOutputStream());
                         objectControllerInput = new ObjectInputStream(controllerSocket.getInputStream());
                         controllerSocket.setKeepAlive(true);
@@ -123,13 +116,12 @@ public class TCPServer {
                         transferController();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "Error on controller");
                     controllerOnline = false;
-                    e.printStackTrace();
+                    printException(e);
                 }
             }
         };
-        thread.start();
+        threadController.start();
     }
 
     public RemoteImage getUpImageBuffer(){
@@ -138,14 +130,14 @@ public class TCPServer {
 
     public boolean updateDownImage(RemoteImage imageBuffer){
         if(isTransferingStreamDown)
-            return false; //Cannot send right now, busy.
+            return false; //Cannot update it right now, currently sending.
         downImageBuffer = imageBuffer;
         return true;
     }
 
     public boolean updateController(int code){
         if(isTransferingController)
-            return false; //Cannot send right now, busy.
+            return false; //Cannot update it right now, currently sending.
         controllerBuffer = code;
         return true;
     }
@@ -156,32 +148,28 @@ public class TCPServer {
 
             try {
 
+                if(!streamDownOnline)
+                    return; // there was an exception in previous connections, cancel.
+
                 //waiting for image to send
                 while(downImageBuffer == null){
                     Thread.sleep(10);
                 }
 
-                if(!streamDownOnline)
-                    return;
-
                 isTransferingStreamDown = true;
-                startingStreamDownTime = System.currentTimeMillis();
                 objectStreamDownOutput.writeObject(downImageBuffer);
                 objectStreamDownOutput.flush();
+                downImageBuffer = null;
                 isTransferingStreamDown = false;
 
-                downImageBuffer = null;
             } catch (IOException e) {
-                e.printStackTrace();
                 streamDownOnline = false;
-                Log.i(TAG,e.getMessage() + "178");
+                printException(e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 streamDownOnline = false;
-                Log.i(TAG, e.getMessage()+ "181");
+                printException(e);
             }
         }
-
     }
 
     private void transferUpImage( ){
@@ -191,30 +179,20 @@ public class TCPServer {
             try {
 
                 if(!streamUpOnline)
-                    return;
-
-                startingStreamUpTime = System.currentTimeMillis();
-
-                while(objectStreamUpInput.available()==0){//waiting for next image
-                    Thread.sleep(5);
-                }
+                    return; // there was an exception in previous connections, cancel.
 
                 isTransferingStreamUp = true;
-                upImageBuffer=(RemoteImage) objectStreamUpInput.readObject();
+                upImageBuffer = (RemoteImage)objectStreamUpInput.readObject();
                 isTransferingStreamUp = false;
 
             } catch (IOException e) {
                 streamUpOnline = false;
-                Log.i(TAG,e.getMessage()+ "208");
+                printException(e);
             } catch (ClassNotFoundException e) {
                 streamUpOnline = false;
-                Log.i(TAG, e.getMessage()+ "211");
-            } catch (InterruptedException e) {
-                streamUpOnline = false;
-                Log.i(TAG, e.getMessage()+ "214");
+                printException(e);
             }
         }
-
     }
 
     public void transferController(){
@@ -224,10 +202,6 @@ public class TCPServer {
 
                 if(!controllerOnline)
                     return;
-
-                while(objectControllerInput.available()==0){ //waiting for data
-                    Thread.sleep(5);
-                }
 
                 isTransferingController = true;
 
@@ -259,45 +233,8 @@ public class TCPServer {
 
             } catch (IOException e) {
                 controllerOnline = false;
-                Log.i(TAG,e.getMessage()+ "262");
-            } catch (InterruptedException e) {
-                controllerOnline = false;
-                Log.i(TAG, e.getMessage()+ "265");
+                printException(e);
             }
-        }
-
-    }
-
-    private void checkConnection(){
-        Thread thread = new Thread() {
-            public void run() {
-                while(serverOnline){
-                    try {
-                        Thread.sleep(2000);
-                        if(System.currentTimeMillis()- startingStreamDownTime > 4000){
-                            if(streamDownOnline)
-                                resetStreaming();
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        thread.start();
-
-    }
-
-    private void resetStreaming(){
-        try {
-            if(!controllerSocket.isClosed())
-                controllerSocket.close();
-            if(!streamDownSocket.isClosed())
-                streamDownSocket.close();
-            if(!streamUpSocket.isClosed())
-                streamUpSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -314,38 +251,10 @@ public class TCPServer {
         } catch (IOException e) {}
     }
 
-
-    public boolean isServerOnline() {
-        return serverOnline;
-    }
-
-
-    public void setServerOnline(boolean serverOnline) {
-        this.serverOnline = serverOnline;
-    }
-
-    public boolean isStreamDownOnline() {
-        return streamDownOnline;
-    }
-
-    public void setStreamDownOnline(boolean clientOnline) {
-        this.streamDownOnline = clientOnline;
-    }
-
-    public boolean isControllerOnline() {
-        return controllerOnline;
-    }
-
-    public void setControllerOnline(boolean controllerOnline) {
-        this.controllerOnline = controllerOnline;
-    }
-
-    public boolean isTransferingController() {
-        return isTransferingController;
-    }
-
-    public void setTransferingController(boolean isTransferingController) {
-        this.isTransferingController = isTransferingController;
+    private void printException(Exception e){
+        StringWriter errors = new StringWriter();
+        e.printStackTrace(new PrintWriter(errors));
+        Log.e(TAG, errors.toString());
     }
 
 }
