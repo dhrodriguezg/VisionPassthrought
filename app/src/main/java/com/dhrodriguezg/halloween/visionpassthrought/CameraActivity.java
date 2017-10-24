@@ -2,6 +2,7 @@ package com.dhrodriguezg.halloween.visionpassthrought;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.widget.Switch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import com.dhrodriguezg.halloween.visionpassthrought.entity.RemoteImage;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.TCPClient;
@@ -29,10 +31,12 @@ public class CameraActivity extends Activity {
 
 	private static final String TAG = "CameraActivity";
 
-    private int cWidth = 640;
-    private int cHeight = 360;
+    private int cWidth = 320;
+    private int cHeight = 240;
+    private int frame = 0;
     private CustomCameraView localView;
     private ImageView remoteView;
+    private ImageView animationView;
     private Spinner spinnerResolution;
     private boolean isAppRunning = true;
     private boolean isUpdatingRemoteImg = false;
@@ -40,6 +44,7 @@ public class CameraActivity extends Activity {
     private TCPClient tcpClient;
     private TCPServer tcpServer;
     private RemoteImage remoteImageBuffer = null;
+    private Bitmap[] animation = null;
 
     public CameraActivity() {}
 
@@ -92,53 +97,24 @@ public class CameraActivity extends Activity {
         localView.setResolution(cWidth, cHeight);
 
         remoteView = (ImageView) findViewById(R.id.imageRemote);
+        remoteView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        animationView = (ImageView) findViewById(R.id.imageAnimation);
         remoteView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        animation = new Bitmap[7];
+        animation[0] = BitmapFactory.decodeResource(getResources(),R.raw.heart_0);
+        animation[1] = BitmapFactory.decodeResource(getResources(),R.raw.heart_1);
+        animation[2] = BitmapFactory.decodeResource(getResources(),R.raw.heart_2);
+        animation[3] = BitmapFactory.decodeResource(getResources(),R.raw.heart_3);
+        animation[4] = BitmapFactory.decodeResource(getResources(),R.raw.heart_4);
+        animation[5] = BitmapFactory.decodeResource(getResources(),R.raw.heart_5);
+        animation[6] = BitmapFactory.decodeResource(getResources(),R.raw.heart_6);
+
         updateResolutions(localView.selectCamera(0));
+        updateStreamImages();
+        updateAnimation();
 
-        Thread threadTarget = new Thread(){
-            public void run(){
-                try {
-
-
-                    while(isAppRunning){
-
-                        while( !localView.hasImageChanged() || isUpdatingRemoteImg){
-                            Thread.sleep(2);
-                        }
-
-                        if(tcpServer != null){//
-                            tcpServer.updateDownImage(new RemoteImage(localView.getImage()));
-                            remoteImageBuffer=tcpServer.getUpImageBuffer();
-                        }
-                        if(tcpClient != null){
-                            tcpClient.updateUpImage(new RemoteImage(localView.getImage()));
-                            tcpClient.updateController(1);
-                            remoteImageBuffer=tcpClient.getDownImageBuffer();
-                        }
-
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                isUpdatingRemoteImg=true;
-                                if(remoteImageBuffer != null){
-                                    byte[] data = remoteImageBuffer.array();
-                                    remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
-                                    remoteImageBuffer = null;
-                                }
-                                isUpdatingRemoteImg=false;
-                            }
-                        });
-
-                        localView.setImageChanged(false);
-                    }
-                } catch (InterruptedException e) {
-                    e.getStackTrace();
-                }
-
-            }
-        };
-        threadTarget.start();
     }
 
     @Override
@@ -196,6 +172,76 @@ public class CameraActivity extends Activity {
                 spinnerResolution.setSelection(pos);
             }
         });
+    }
+
+    private void updateStreamImages(){
+        Thread threadUpdateRmtImage = new Thread(){
+            public void run(){
+                try {
+
+                    while(isAppRunning){
+
+                        while( !localView.hasImageChanged() || isUpdatingRemoteImg){
+                            Thread.sleep(2);
+                        }
+
+                        if(tcpServer != null){//
+                            tcpServer.updateDownImage(new RemoteImage(localView.getImage()));
+                            remoteImageBuffer=tcpServer.getUpImageBuffer();
+                        }
+                        if(tcpClient != null){
+                            tcpClient.updateUpImage(new RemoteImage(localView.getImage()));
+                            tcpClient.updateController(1);
+                            remoteImageBuffer=tcpClient.getDownImageBuffer();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                isUpdatingRemoteImg=true;
+                                if(remoteImageBuffer != null){
+                                    byte[] data = remoteImageBuffer.array();
+                                    remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
+                                    remoteImageBuffer = null;
+                                }
+                                isUpdatingRemoteImg=false;
+                            }
+                        });
+                        localView.setImageChanged(false);
+                    }
+                } catch (InterruptedException e) {
+                    e.getStackTrace();
+                }
+
+            }
+        };
+        threadUpdateRmtImage.start();
+    }
+
+    private void updateAnimation(){
+        Thread threadUpdateAnimation = new Thread(){
+            public void run(){
+                try {
+                    while(isAppRunning){
+                        Thread.sleep(100);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                if(frame > animation.length - 1)
+                                    frame=0;
+                                animationView.setImageBitmap(animation[frame]);
+                                frame++;
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    e.getStackTrace();
+                }
+            }
+        };
+        threadUpdateAnimation.start();
     }
 
 }

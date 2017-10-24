@@ -242,8 +242,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 hostNameIPs.put(getString(R.string.public_ip_name), publicIP);
         } catch (SocketException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
