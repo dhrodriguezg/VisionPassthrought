@@ -2,6 +2,7 @@ package com.dhrodriguezg.halloween.visionpassthrought;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhrodriguezg.halloween.visionpassthrought.entity.Server;
@@ -41,12 +43,11 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     public static Properties PREFERENCES;
 
-    private EditText streamPort1;
-    private EditText streamPort2;
-    private EditText controlPort;
+    private TextView cameraQ;
     private EditText phoneIP;
     private EditText serverIP;
 
+    private Button startCamera;
     private Button startClient;
     private Button startServer;
     private Button testServer;
@@ -63,20 +64,20 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         publicIP = null;
-        updatePublicIP(true);
+        updatePublicIP(false);
         findAllDeviceIPs();
         loadGUI();
+        updateNumberOfCameras();
     }
 
     private void loadGUI(){
         setContentView(R.layout.activity_main);
 
-        streamPort1 = (EditText) findViewById(R.id.server_streamport1_value);
-        streamPort2 = (EditText) findViewById(R.id.server_streamport2_value);
-        controlPort = (EditText) findViewById(R.id.server_controlport_value);
+        cameraQ = (TextView) findViewById(R.id.camera_value);
         phoneIP = (EditText) findViewById(R.id.phone_ip_value);
         serverIP = (EditText) findViewById(R.id.client_serverip_value);
 
+        startCamera = (Button) findViewById(R.id.camera_start_btn);
         startClient = (Button) findViewById(R.id.client_start_btn);
         startServer = (Button) findViewById(R.id.server_start_btn);
         testServer = (Button) findViewById(R.id.client_test_server_btn);
@@ -90,7 +91,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             phoneIP.setText(hostNameIPs.get(getString(R.string.server_second_comm)));
         else if (publicIP!=null)
             phoneIP.setText(publicIP);
-
 
         deviceIps = new PopupMenu( this, phoneIP);
         deviceIps.setOnMenuItemClickListener(this);
@@ -119,6 +119,13 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             @Override
             public void onClick(View v) {
                 startSendingPing();
+            }
+        });
+
+        startCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startLocalCameraActivity();
             }
         });
 
@@ -196,30 +203,36 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         }
     }
 
+    private void startLocalCameraActivity(){
+        Intent myIntent = new Intent(MainActivity.this, SingleCameraActivity.class);
+        MainActivity.this.startActivity(myIntent);
+    }
+
     private void startClientCameraActivity(){
         if (isMasterValid()){
             Server server = new Server(serverIP.getText().toString(), "name",
-                    Integer.parseInt(streamPort1.getText().toString()),
-                    Integer.parseInt(streamPort2.getText().toString()),
-                    Integer.parseInt(controlPort.getText().toString()) );
+                    Integer.parseInt(getString(R.string.server_streamport1_value)),
+                    Integer.parseInt(getString(R.string.server_streamport2_value)),
+                    Integer.parseInt(getString(R.string.server_controlport_value)));
             PREFERENCES.clear();
             PREFERENCES.put(getString(R.string.comm_mode_name), getString(R.string.comm_client_name));
             PREFERENCES.put(getString(R.string.comm_config_name), server);
-            Intent myIntent = new Intent(MainActivity.this, CameraActivity.class);
+            Intent myIntent = new Intent(MainActivity.this, DualCameraActivity.class);
             MainActivity.this.startActivity(myIntent);
         }
     }
 
     private void startServerCameraActivity(){
+        //set ports manually
         Server server = new Server(phoneIP.getText().toString(), "name",
-                Integer.parseInt(streamPort1.getText().toString()),
-                Integer.parseInt(streamPort2.getText().toString()),
-                Integer.parseInt(controlPort.getText().toString()) );
+                Integer.parseInt(getString(R.string.server_streamport1_value)),
+                Integer.parseInt(getString(R.string.server_streamport2_value)),
+                Integer.parseInt(getString(R.string.server_controlport_value)));
         PREFERENCES.clear();
         PREFERENCES.put(getString(R.string.comm_mode_name), getString(R.string.comm_server_name));
         PREFERENCES.put(getString(R.string.comm_config_name), server);
 
-        Intent myIntent = new Intent(MainActivity.this, CameraActivity.class);
+        Intent myIntent = new Intent(MainActivity.this, DualCameraActivity.class);
         MainActivity.this.startActivity(myIntent);
     }
 
@@ -239,7 +252,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 }
             }
             if(publicIP!=null)
-                hostNameIPs.put(getString(R.string.public_ip_name), publicIP);
+                hostNameIPs.put(getString(R.string.public_default_comm), publicIP);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -261,7 +274,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                     if(overrideHostIP && serverIP != null){
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                serverIP.setText(publicIP);
+                                phoneIP.setText(publicIP);
                             }
                         });
                     }
@@ -351,6 +364,28 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         }
 
         return exit;
+    }
+
+    private void updateNumberOfCameras(){
+        Thread threadNumberCameras = new Thread(){
+            public void run(){
+                try {
+
+                    while(isAlive()){
+                        Thread.sleep(100);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                cameraQ.setText("  "+String.valueOf(Camera.getNumberOfCameras()));
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    e.getStackTrace();
+                }
+            }
+        };
+        threadNumberCameras.start();
     }
 
 }

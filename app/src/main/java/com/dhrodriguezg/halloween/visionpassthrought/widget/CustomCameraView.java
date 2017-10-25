@@ -26,12 +26,14 @@ package com.dhrodriguezg.halloween.visionpassthrought.widget;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -70,10 +72,8 @@ public class CustomCameraView extends ViewGroup {
     private ChannelBuffer image;
     private boolean imageChanged;
     private List<Size> supportedSizes;
-
     private int width;
     private int height;
-
 
     private BufferingPreviewCallback bufferingPreviewCallback;
 
@@ -106,7 +106,6 @@ public class CustomCameraView extends ViewGroup {
     private void init(Context context) {
 
         surfaceView = new SurfaceView(context);
-        //surfaceView.setRotation(90);
         setBackgroundColor(Color.BLACK);
         addView(surfaceView);
 
@@ -174,6 +173,7 @@ public class CustomCameraView extends ViewGroup {
     public void setCamera(Camera camera) {
         Preconditions.checkNotNull(camera);
         this.camera = camera;
+        camera.setDisplayOrientation(90); //change here in case of landscape, however keep in mind that this class is created again after changing rotations.
         setupCameraParameters();
         setupBufferingPreviewCallback();
         camera.startPreview();
@@ -181,7 +181,7 @@ public class CustomCameraView extends ViewGroup {
             // This may have no effect if the SurfaceHolder is not yet created.
             camera.setPreviewDisplay(surfaceHolder);
         } catch (IOException e) {
-            //throw new RosRuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -191,6 +191,7 @@ public class CustomCameraView extends ViewGroup {
         previewSize = getOptimalPreviewSize(supportedSizes, width, height);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
         parameters.setPreviewFormat(ImageFormat.NV21);
+        parameters.setRotation(90);
         camera.setParameters(parameters);
     }
 
@@ -242,7 +243,14 @@ public class CustomCameraView extends ViewGroup {
 
         float screenRatio=(float)getWidth()/(float)getHeight();
         float resolutionRatio=(float)width/(float)height;
-        surfaceView.setScaleX(resolutionRatio/screenRatio);
+        if(surfaceView.getHeight() < surfaceView.getWidth()){//landscape
+            surfaceView.setScaleX(1.f);
+            surfaceView.setScaleY(resolutionRatio/screenRatio);
+        }else{//portrait
+            surfaceView.setScaleX(resolutionRatio/screenRatio);
+            surfaceView.setScaleY(1.f);
+        }
+
     }
 
     @Override
@@ -298,7 +306,7 @@ public class CustomCameraView extends ViewGroup {
                     camera.setPreviewDisplay(holder);
                 }
             } catch (IOException e) {
-                //throw new RosRuntimeException(e);
+                e.printStackTrace();
             }
         }
 

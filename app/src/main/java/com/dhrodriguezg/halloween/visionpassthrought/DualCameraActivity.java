@@ -1,8 +1,6 @@
 package com.dhrodriguezg.halloween.visionpassthrought;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -20,20 +18,20 @@ import android.widget.Switch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
+import com.dhrodriguezg.halloween.visionpassthrought.entity.Animation;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.RemoteImage;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.TCPClient;
 import com.dhrodriguezg.halloween.visionpassthrought.entity.TCPServer;
 import com.dhrodriguezg.halloween.visionpassthrought.widget.CustomCameraView;
 
-public class CameraActivity extends Activity {
+public class DualCameraActivity extends Activity {
 
-	private static final String TAG = "CameraActivity";
+	private static final String TAG = "DualCameraActivity";
 
     private int cWidth = 320;
     private int cHeight = 240;
-    private int frame = 0;
+    private int nCamera = 1;
     private CustomCameraView localView;
     private ImageView remoteView;
     private ImageView animationView;
@@ -44,9 +42,9 @@ public class CameraActivity extends Activity {
     private TCPClient tcpClient;
     private TCPServer tcpServer;
     private RemoteImage remoteImageBuffer = null;
-    private Bitmap[] animation = null;
+    private Animation animation = null;
 
-    public CameraActivity() {}
+    public DualCameraActivity() {}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +52,7 @@ public class CameraActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_camera);
+        setContentView(R.layout.activity_dualcamera);
 
         if(MainActivity.PREFERENCES.getProperty(getString(R.string.comm_mode_name)).equals(getString(R.string.comm_server_name))){
             Log.i(TAG,"I'M THE SERVER");
@@ -72,10 +70,10 @@ public class CameraActivity extends Activity {
         cameraSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton toggleButton, boolean isChecked) {
-                if (isChecked)
-                    localView.selectCamera(0);
-                else
-                    localView.selectCamera(1);
+                nCamera++;
+                if (localView.getCamera().getNumberOfCameras() > 1)
+                    nCamera = nCamera % localView.getCamera().getNumberOfCameras();
+                localView.selectCamera(nCamera);
             }
         });
 
@@ -102,16 +100,10 @@ public class CameraActivity extends Activity {
         animationView = (ImageView) findViewById(R.id.imageAnimation);
         remoteView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        animation = new Bitmap[7];
-        animation[0] = BitmapFactory.decodeResource(getResources(),R.raw.heart_0);
-        animation[1] = BitmapFactory.decodeResource(getResources(),R.raw.heart_1);
-        animation[2] = BitmapFactory.decodeResource(getResources(),R.raw.heart_2);
-        animation[3] = BitmapFactory.decodeResource(getResources(),R.raw.heart_3);
-        animation[4] = BitmapFactory.decodeResource(getResources(),R.raw.heart_4);
-        animation[5] = BitmapFactory.decodeResource(getResources(),R.raw.heart_5);
-        animation[6] = BitmapFactory.decodeResource(getResources(),R.raw.heart_6);
+        animation = new Animation(this);
+        animation.setAnimation("heart");
 
-        updateResolutions(localView.selectCamera(0));
+        updateResolutions(localView.selectCamera(nCamera));
         updateStreamImages();
         updateAnimation();
 
@@ -120,7 +112,7 @@ public class CameraActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        isAppRunning =true;
+        isAppRunning = true;
     }
     
     @Override
@@ -130,7 +122,9 @@ public class CameraActivity extends Activity {
     
     @Override
     public void onDestroy() {
-        isAppRunning =false;
+        isAppRunning = false;
+        if(animation != null)
+            animation.stopAnimation();
         if(tcpServer != null)
             tcpServer.shutdown();
         if(tcpClient != null)
@@ -186,11 +180,15 @@ public class CameraActivity extends Activity {
                         }
 
                         if(tcpServer != null){//
-                            tcpServer.updateDownImage(new RemoteImage(localView.getImage()));
+                            RemoteImage remoteImage = new RemoteImage(localView.getImage());
+                            remoteImage.setFlipped(nCamera!=1);
+                            tcpServer.updateDownImage(remoteImage);
                             remoteImageBuffer=tcpServer.getUpImageBuffer();
                         }
                         if(tcpClient != null){
-                            tcpClient.updateUpImage(new RemoteImage(localView.getImage()));
+                            RemoteImage remoteImage = new RemoteImage(localView.getImage());
+                            remoteImage.setFlipped(nCamera!=1);
+                            tcpClient.updateUpImage(remoteImage);
                             tcpClient.updateController(1);
                             remoteImageBuffer=tcpClient.getDownImageBuffer();
                         }
@@ -200,6 +198,8 @@ public class CameraActivity extends Activity {
                             public void run() {
                                 isUpdatingRemoteImg=true;
                                 if(remoteImageBuffer != null){
+                                    if(remoteImageBuffer.isFlipped())
+                                        animationView.setScaleX(-1f);
                                     byte[] data = remoteImageBuffer.array();
                                     remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
                                     remoteImageBuffer = null;
@@ -222,17 +222,15 @@ public class CameraActivity extends Activity {
         Thread threadUpdateAnimation = new Thread(){
             public void run(){
                 try {
+                    animation.startAnimation();
                     while(isAppRunning){
                         Thread.sleep(100);
 
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                animationView.setImageBitmap(animation.nextFrame());
 
-                                if(frame > animation.length - 1)
-                                    frame=0;
-                                animationView.setImageBitmap(animation[frame]);
-                                frame++;
                             }
                         });
                     }

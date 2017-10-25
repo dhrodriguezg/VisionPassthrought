@@ -1,29 +1,36 @@
 <resources>
+
+    <!-- GUI TEXT -->
+
     <string name="app_name">Vision Passthrought</string>
+    <string name="spanish">Español</string>
+    <string name="english">English</string>
 
-
-    <string name="phone_info_title">YOUR PHONE INFO:</string>
-    <string name="phone_name_title">Your phone name:</string>
+    <string name="phone_info_title">PHONE INFO</string>
+    <string name="phone_name_title">Cameras found: </string>
     <string name="phone_name_value">...searching...</string>
     <string name="phone_ip_title">Your phone IP:</string>
     <string name="phone_ip_value">0.0.0.0</string>
     <string name="phone_ip_btn">pick</string>
 
-    <string name="server_settings_title">SERVER SETTINGS</string>
-    <string name="server_streamport1_title">Port 1:</string>
+    <string name="dualcamera_title">DUAL CAMERA (BETA)</string>
+    <string name="singlecamera_title">SINGLE CAMERA</string>
+
+    <string name="server_settings_title">Server Settings</string>
     <string name="server_streamport1_value">7775</string>
-    <string name="server_streamport2_title">Port 2:</string>
     <string name="server_streamport2_value">7776</string>
-    <string name="server_controlport_title">Port 3:</string>
     <string name="server_controlport_value">7777</string>
     <string name="server_start_title">START SERVER</string>
 
-    <string name="client_settings_title">CLIENT SETTINGS</string>
+    <string name="client_settings_title">Client Settings</string>
     <string name="client_serverip_title">Server IP:</string>
     <string name="client_serverip_value">192.168.0.2</string>
     <string name="client_test_server">Test</string>
     <string name="client_start_title">START CLIENT</string>
 
+    <!-- CONFIG VALUES -->
+
+    <string name="public_default_comm">nat</string>
     <string name="server_default_comm">ppp0</string>
     <string name="server_second_comm">wlan0</string>
 
@@ -32,112 +39,4 @@
     <string name="comm_client_name">client</string>
     <string name="comm_config_name">config</string>
 
-
-
-    <!-- GLOBAL TEXT -->
-    <string name="spanish">Español</string>
-    <string name="english">English</string>
-    <string name="emergency_off">EMERGENCY STOP</string>
-    <string name="emergency_on">STOPPING ROBOT</string>
-    <string name="emergency_on_msg">EMERGENCY STOP ACTIVATED!</string>
-    <string name="emergency_off_msg">EMERGENCY STOP DEACTIVATED!</string>
-
-    <!-- GLOBAL VALUES -->
-    <string name="empty"></string>
-    <string name="empty_X3">   </string>
-    <string name="navigation01">"navigation01"</string>
-    <string name="navigation02">"navigation02"</string>
-    <string name="navigation03">"navigation03"</string>
-    <string name="manipulation01">"manipulation01"</string>
-    <string name="manipulation02">"manipulation02"</string>
-    <string name="manipulation03">"manipulation03"</string>
-    <string name="interface_navigation_01_number">11</string>
-    <string name="interface_navigation_02_number">12</string>
-    <string name="interface_navigation_03_number">13</string>
-    <string name="interface_manipulation_01_number">21</string>
-    <string name="interface_manipulation_02_number">22</string>
-    <string name="interface_manipulation_03_number">23</string>
-
-    <!-- ROS VALUES -->
-    <string name="MASTER">ROS_MASTER</string>
-    <string name="MASTER_URI">ROS_MASTER_URI</string>
-    <string name="HOSTNAME">ROS_HOSTNAME</string>
-    <string name="STREAM_URL">ROS_STREAM_URL</string>
-    <string name="topic_head_target">"/android/head_target"</string>
-    <string name="topic_user_measures">"/android/user_measures"</string>
-    <string name="topic_gripper_pose_preset">"/android/gripper_pose/preset"</string>
-    <string name="topic_robot_nav">/android/robot_navegation</string>
-    <string name="topic_r_arm_grasp">/android/r_arm_grasp</string>
-    <string name="topic_r_arm_nav">/android/r_arm_navigation</string>
-    <string name="topic_camera_number">/android/camera/selection</string>
-    <string name="topic_interfacenumber">/android/interface_number</string>
-    <string name="topic_streaming">"/android/image_raw/compressed"</string>
-    <string name="topic_streaming_msg">sensor_msgs/CompressedImage</string>
-    <string name="topic_emergencystop">/android/emergency_stop</string>
-
-    <string name="topic_target_distance">/android/robot_base/target_distance</string>
-
-    <string name="service_test">/android/test_service</string>
-
-    <!-- MAIN ACTIVITY TEXT -->
-    <string name="app_navigation_name">RobotArm Navigation</string>
-    <string name="app_manipulation_name">RobotArm Manipulation</string>
-    <string name="network_setting">Network Settings</string>
-    <string name="ros_master_ip">ROS Master:</string>
-    <string name="ros_master_port">ROS Master Port:</string>
-    <!-- string name="default_master_ip">85.6.28.1</string -->
-    <string name="default_master_ip">157.253.192.195</string>
-    <string name="default_master_port">11311</string>
-    <string name="ping">Ping</string>
-    <string name="test">Test</string>
-    <string name="ros_hostname_ip">ROS Hostname:</string>
-    <string name="default_hostname_ip">0.0.0.0</string>
-    <string name="change_hostname_ip">Change</string>
-
-    <string name="public_ip_name">nat</string>
-    <string name="options">Options</string>
-    <string name="stream">Stream:</string>
-    <string name="mjpeg">Mjpeg</string>
-    <string name="mjpeg_port">8080</string>
-    <string name="ros_cimage">ROS CImage</string>
-    <string name="control">Control:</string>
-    <string name="udp">UDP</string>
-    <string name="tcp">TCP</string>
-    <string name="udp_port">58528</string>
-    <string name="task">Task</string>
-    <string name="interfac">Interface</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="is_record">Record data?</string>
-    <string name="record">save_data</string>
-    <string name="user_number">User\'s #</string>
-    <string name="user">user</string>
-    <string name="interfaces">Interfaces</string>
-    <string name="interfaces_navigation">Navigation:</string>
-    <string name="interfaces_manipulation">Manipulation:</string>
-    <string name="interface_navigation_01">a. On-Screen Joys</string>
-    <string name="interface_navigation_02">b. Gestures</string>
-    <string name="interface_navigation_03">c. IMU</string>
-    <string name="interface_manipulation_01">a. On-Screen Joys</string>
-    <string name="interface_manipulation_02">b. Gestures</string>
-    <string name="interface_manipulation_03">c. IMU</string>
-
-    <!-- NAVIGATION ACTIVITY TEXT -->
-    <string name="text_virtualjoystick01">Navigation</string>
-    <string name="text_scroller">Throttle</string>
-    <string name="text_virtualjoystick02">Camera</string>
-    <string name="text_button1">Reset Camera</string>
-    <string name="text_togglebuttonOn">Press to pause</string>
-    <string name="text_togglebuttonOff">Press to START</string>
-    <string name="text_togglebuttonEnd">Press to FINISH</string>
-
-    <!-- MANIPULATION ACTIVITY TEXT -->
-    <string name="text_virtualjoystickMan01">Circle Navigation</string>
-    <string name="text_scrollerMan">Grasping</string>
-    <string name="text_virtualjoystickMan02">Roll/Closeness</string>
-
-    <string name="text_togglebuttonOnOff1">Camera 1</string>
-    <string name="text_togglebuttonOnOff2">Camera 2</string>
-    <string name="text_buttonPreset1">Top-Down</string>
-    <string name="text_buttonPreset2">Right-to-Left</string>
 </resources>

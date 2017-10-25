@@ -17,10 +17,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/Separator01"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/holo_blue_dark" />
 
     <android.support.v7.widget.GridLayout
-        grid:layout_heightPercent="15%"
+        grid:layout_heightPercent="21%"
         grid:layout_widthPercent="100%"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -33,6 +33,8 @@
 
         <TextView
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/holo_blue_light"
+            android:textStyle="bold"
             android:text="@string/phone_info_title"
             android:id="@+id/phone_info_title"
             grid:layout_gravity="left|center_vertical"
@@ -40,6 +42,7 @@
             grid:layout_columnSpan="2" />
 
         <TextView
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/phone_name_title"
             android:id="@+id/phone_name_title"
             grid:layout_columnWeight="1"
@@ -47,8 +50,9 @@
             android:gravity="center_vertical|right" />
 
         <TextView
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/phone_name_value"
-            android:id="@+id/phone_name_value"
+            android:id="@+id/camera_value"
             grid:layout_columnWeight="1"
             grid:layout_rowWeight="1"
             android:gravity="center_vertical|left" />
@@ -63,17 +67,17 @@
         android:layout_height="0dp"
         android:id="@+id/Separator02"
         android:layout_below="@+id/InfoSection"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/holo_blue_dark" />
 
 
     <android.support.v7.widget.GridLayout
-        grid:layout_heightPercent="49%"
+        grid:layout_heightPercent="21%"
         grid:layout_widthPercent="100%"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_below="@+id/Separator02"
         android:id="@+id/ServerSection"
-        grid:rowCount="6"
+        grid:rowCount="2"
         grid:columnCount="3"
         grid:orientation="horizontal"
         android:layout_marginRight="3dp"
@@ -81,97 +85,34 @@
 
         <TextView
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/server_settings_title"
-            android:id="@+id/server_settings_title"
+            android:textColor="@android:color/holo_blue_light"
+            android:textStyle="bold"
+            android:text="@string/singlecamera_title"
+            android:id="@+id/local_settings_title"
             grid:layout_rowWeight="1"
             grid:layout_columnSpan="3"
-            grid:layout_gravity="center" />
+            grid:layout_gravity="left" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:text="@string/phone_ip_title"
-            android:id="@+id/phone_ip_title"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="3"
-            android:gravity="center_vertical|right" />
-
-        <EditText
-            android:text="@string/phone_ip_value"
-            android:id="@+id/phone_ip_value"
-            android:inputType="phone"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            />
+            android:text=""
+            android:id="@+id/empty01"
+            grid:layout_rowWeight="2"
+            grid:layout_columnWeight="1" />
 
         <Button
             android:layout_width="0dp"
             android:layout_height="0dp"
             grid:layout_columnWeight="1"
-            grid:layout_rowWeight="3"
-            android:text="@string/phone_ip_btn"
-            android:id="@+id/phone_ip_btn"
+            grid:layout_rowWeight="2"
+            android:text="GOOO!"
+            android:id="@+id/camera_start_btn"
             android:gravity="center_vertical|center" />
 
         <TextView
-            android:text="@string/server_streamport1_title"
-            android:id="@+id/server_streamport1_title"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            android:gravity="center_vertical|right"
-            />
-
-        <EditText
-            android:text="@string/server_streamport1_value"
-            android:id="@+id/server_streamport1_value"
-            android:inputType="phone"
-            grid:layout_columnSpan="2"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            />
-
-        <TextView
-            android:text="@string/server_streamport2_title"
-            android:id="@+id/server_streamport2_title"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            android:gravity="center_vertical|right"
-            />
-
-        <EditText
-            android:text="@string/server_streamport2_value"
-            android:id="@+id/server_streamport2_value"
-            android:inputType="phone"
-            grid:layout_columnSpan="2"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            />
-
-        <TextView
-            android:text="@string/server_controlport_title"
-            android:id="@+id/server_controlport_title"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            android:gravity="center_vertical|right"
-            android:textSize="12sp" />
-
-        <EditText
-            android:text="@string/server_controlport_value"
-            android:id="@+id/server_controlport_value"
-            android:inputType="phone"
-            grid:layout_columnSpan="2"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1" />
-
-        <Button
-            android:text="@string/server_start_title"
-            android:id="@+id/server_start_btn"
-            grid:layout_columnWeight="1"
-            grid:layout_rowWeight="1"
-            grid:layout_columnSpan="3" />
-
-
-
+            android:text=""
+            android:id="@+id/empty02"
+            grid:layout_rowWeight="2"
+            grid:layout_columnWeight="1" />
 
     </android.support.v7.widget.GridLayout>
 
@@ -182,10 +123,10 @@
         android:layout_height="0dp"
         android:id="@+id/Separator03"
         android:layout_below="@+id/ServerSection"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/holo_blue_dark" />
 
     <android.support.v7.widget.GridLayout
-        grid:layout_heightPercent="29%"
+        grid:layout_heightPercent="54%"
         grid:layout_widthPercent="100%"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -197,19 +138,69 @@
         android:layout_marginRight="3dp"
         android:layout_marginLeft="3dp">
 
-
         <TextView
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/holo_blue_light"
+            android:textStyle="bold"
+            android:text="@string/dualcamera_title"
+            android:id="@+id/remote_settings_title"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            grid:layout_gravity="left" />
+
+        <TextView
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/server_settings_title"
+            android:id="@+id/server_settings_title"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            grid:layout_gravity="left" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="@string/phone_ip_title"
+            android:id="@+id/phone_ip_title"
+            grid:layout_columnWeight="5"
+            grid:layout_rowWeight="3"
+            android:gravity="center_vertical|right" />
+
+        <EditText
+            android:text="@string/phone_ip_value"
+            android:id="@+id/phone_ip_value"
+            android:inputType="phone"
+            grid:layout_columnWeight="5"
+            grid:layout_rowWeight="1" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="2"
+            android:text="@string/phone_ip_btn"
+            android:id="@+id/phone_ip_btn"
+            android:gravity="center_vertical|center" />
+
+        <Button
+            android:text="@string/server_start_title"
+            android:id="@+id/server_start_btn"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"
+            grid:layout_columnSpan="3"
+            android:layout_width="269dp" />
+
+        <TextView
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/client_settings_title"
             android:id="@+id/client_settings_title"
             grid:layout_rowWeight="1"
             grid:layout_columnSpan="3"
-            grid:layout_gravity="center" />
+            grid:layout_gravity="left" />
 
         <TextView
             android:text="@string/client_serverip_title"
             android:id="@+id/client_serverip_title"
-            grid:layout_columnWeight="1"
+            grid:layout_columnWeight="5"
             grid:layout_rowWeight="1"
             android:gravity="center_vertical|right"
             android:textSize="12sp" />
@@ -218,7 +209,7 @@
             android:text="@string/client_serverip_value"
             android:id="@+id/client_serverip_value"
             android:inputType="phone"
-            grid:layout_columnWeight="1"
+            grid:layout_columnWeight="5"
             grid:layout_rowWeight="1" />
 
         <Button
@@ -246,6 +237,6 @@
         android:layout_height="0dp"
         android:id="@+id/Separator04"
         android:layout_below="@+id/ClientSection"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/holo_blue_dark" />
 
 </android.support.percent.PercentRelativeLayout>

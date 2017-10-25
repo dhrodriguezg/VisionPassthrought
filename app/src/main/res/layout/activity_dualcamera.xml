@@ -2,8 +2,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:ignore="ContentDescription"
-    tools:context=".CameraActivity"
-    android:orientation="horizontal">
+    tools:context=".DualCameraActivity" >
 
     <ImageView
         android:layout_width="fill_parent"
@@ -20,8 +19,8 @@
         android:id="@+id/imageLocal"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_width="96dp"
-        android:layout_height="54dp" />
+        android:layout_width="54dp"
+        android:layout_height="96dp" />
 
     <Spinner
         android:layout_width="150dp"

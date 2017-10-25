@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class RemoteImage implements Serializable {
 
     private static final String TAG = "RemoteImage";
-
+    private boolean isFlipped;
     private int offset, length;
     byte[] data;
 
@@ -17,6 +17,7 @@ public class RemoteImage implements Serializable {
     }
 
     public void setImageBuffer(ChannelBuffer imageBuffer){
+        isFlipped = false;
         data=imageBuffer.array();
         offset=imageBuffer.arrayOffset();
         length=imageBuffer.readableBytes();
@@ -34,6 +35,12 @@ public class RemoteImage implements Serializable {
         return length;
     }
 
+    public boolean isFlipped() {
+        return isFlipped;
+    }
 
+    public void setFlipped(boolean flipped) {
+        isFlipped = flipped;
+    }
 
 }
