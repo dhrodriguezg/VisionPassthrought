@@ -70,6 +70,7 @@ public class SingleCameraActivity extends Activity {
             }
         });
         animationView = (ImageView) findViewById(R.id.imageAnimation);
+        animationView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         localView = (CustomCameraView) findViewById(R.id.imageLocal);
         localView.setResolution(cWidth, cHeight);

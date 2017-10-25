@@ -57,7 +57,7 @@ import java.util.List;
 public class CustomCameraView extends ViewGroup {
 
     private final static double ASPECT_TOLERANCE = 0.1;
-
+    private float overScale = 1.3f;
     private SurfaceHolder surfaceHolder;
     private Camera camera;
     private Size previewSize;
@@ -244,11 +244,11 @@ public class CustomCameraView extends ViewGroup {
         float screenRatio=(float)getWidth()/(float)getHeight();
         float resolutionRatio=(float)width/(float)height;
         if(surfaceView.getHeight() < surfaceView.getWidth()){//landscape
-            surfaceView.setScaleX(1.f);
-            surfaceView.setScaleY(resolutionRatio/screenRatio);
+            surfaceView.setScaleX(1.f*overScale);
+            surfaceView.setScaleY(resolutionRatio/screenRatio*overScale);
         }else{//portrait
-            surfaceView.setScaleX(resolutionRatio/screenRatio);
-            surfaceView.setScaleY(1.f);
+            surfaceView.setScaleX(resolutionRatio/screenRatio*overScale);
+            surfaceView.setScaleY(1.f*overScale);
         }
 
     }

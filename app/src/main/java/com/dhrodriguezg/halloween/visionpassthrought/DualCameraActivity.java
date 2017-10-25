@@ -1,7 +1,9 @@
 package com.dhrodriguezg.halloween.visionpassthrought;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -98,7 +100,7 @@ public class DualCameraActivity extends Activity {
         remoteView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         animationView = (ImageView) findViewById(R.id.imageAnimation);
-        remoteView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        animationView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         animation = new Animation(this);
         animation.setAnimation("heart");
@@ -201,7 +203,16 @@ public class DualCameraActivity extends Activity {
                                     if(remoteImageBuffer.isFlipped())
                                         animationView.setScaleX(-1f);
                                     byte[] data = remoteImageBuffer.array();
-                                    remoteView.setImageBitmap(BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes()));
+
+                                    Matrix matrix = new Matrix();
+                                    matrix.postRotate(-90);
+
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, remoteImageBuffer.arrayOffset(), remoteImageBuffer.readableBytes());
+                                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,bitmap.getWidth(),bitmap.getHeight(),true);
+                                    Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap .getWidth(), scaledBitmap .getHeight(), matrix, true);
+
+
+                                    remoteView.setImageBitmap(rotatedBitmap);
                                     remoteImageBuffer = null;
                                 }
                                 isUpdatingRemoteImg=false;
